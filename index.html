@@ -45,7 +45,19 @@
   }
   .pulse-ring{ animation:ring 1.8s ease-out infinite; transform-origin:center; }
 
-  header{
+  @keyframes shimmer{
+    0%{ background-position:200% 0; }
+    100%{ background-position:-200% 0; }
+  }
+  .skeleton-box{
+    background:linear-gradient(90deg, var(--surface) 25%, var(--surface-raised) 50%, var(--surface) 75%);
+    background-size:200% 100%; animation:shimmer 1.6s infinite;
+  }
+  .hero-skeleton{
+    height:min(60vh, 520px); min-height:360px;
+    background:linear-gradient(90deg, var(--surface) 25%, var(--surface-raised) 50%, var(--surface) 75%);
+    background-size:200% 100%; animation:shimmer 1.6s infinite;
+  }
     position:sticky; top:0; z-index:50;
     background:rgba(10,10,9,0.88); backdrop-filter:blur(10px);
     border-bottom:1px solid var(--border);
@@ -368,6 +380,7 @@
   </div>
 </header>
 
+<div class="hero-skeleton" id="heroSkeleton"></div>
 <section class="hero" id="hero" style="display:none;">
   <div class="hero-bg" id="heroBg"></div>
   <div class="hero-content">
@@ -630,6 +643,41 @@ document.querySelectorAll('.nav-link').forEach(btn => {
   });
 });
 
+// --- Squelettes de chargement ---
+function skeletonRail(railId, count){
+  const rail = document.getElementById(railId);
+  if(!rail) return;
+  rail.innerHTML = Array.from({ length: count }).map(() => `
+    <div class="trend-card">
+      <div class="trend-poster skeleton-box"></div>
+    </div>
+  `).join('');
+}
+
+function skeletonProviders(count){
+  const rail = document.getElementById('providerRail');
+  rail.innerHTML = Array.from({ length: count }).map(() => `
+    <div class="provider-chip" style="pointer-events:none;">
+      <div class="skeleton-box" style="width:40px; height:40px; border-radius:9px;"></div>
+      <div class="skeleton-box" style="width:60%; height:10px; border-radius:4px;"></div>
+    </div>
+  `).join('');
+}
+
+function skeletonGrid(count){
+  const grid = document.getElementById('results');
+  showEmpty(false);
+  grid.innerHTML = Array.from({ length: count }).map(() => `
+    <div class="card" style="pointer-events:none;">
+      <div class="poster skeleton-box"></div>
+      <div class="card-body">
+        <div class="skeleton-box" style="height:12px; width:85%; border-radius:4px; margin-bottom:6px;"></div>
+        <div class="skeleton-box" style="height:10px; width:50%; border-radius:4px;"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
 // --- Hero ---
 async function loadHero(){
   try{
@@ -650,11 +698,14 @@ async function loadHero(){
     document.getElementById('hero').style.display = 'block';
   }catch(e){
     console.error(e);
+  }finally{
+    document.getElementById('heroSkeleton').style.display = 'none';
   }
 }
 
 // --- Trending / Top rated / New (rails d'accueil, non paginés) ---
 async function loadTrending(){
+  skeletonRail('trendingRail', 8);
   try{
     const data = await tmdbFetch('/trending/all/week', {});
     const items = data.results.filter(r => r.media_type === 'movie' || r.media_type === 'tv').slice(0, 15);
@@ -663,6 +714,7 @@ async function loadTrending(){
 }
 
 async function loadTopRatedTeaser(){
+  skeletonRail('topRatedRail', 8);
   try{
     const data = await tmdbFetch('/movie/top_rated', { region: REGION });
     renderRail('topRatedRail', data.results.slice(0, 15).map(i => ({ ...i, media_type: 'movie' })), false);
@@ -670,6 +722,7 @@ async function loadTopRatedTeaser(){
 }
 
 async function loadNewTeaser(){
+  skeletonRail('newRail', 8);
   try{
     const data = await tmdbFetch('/movie/now_playing', { region: REGION });
     renderRail('newRail', data.results.slice(0, 15).map(i => ({ ...i, media_type: 'movie' })), false);
@@ -702,6 +755,7 @@ function renderRail(railId, items, showRank){
 // --- Providers ---
 async function loadProviders(){
   const rail = document.getElementById('providerRail');
+  skeletonProviders(6);
   try{
     const data = await tmdbFetch('/watch/providers/movie', { watch_region: REGION });
     const wanted = ['Netflix','Amazon Prime Video','Disney Plus','Apple TV','Canal+','OCS','Max','Paramount Plus'];
@@ -759,9 +813,10 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 
 // --- Top rated & Nouveautés (vues complètes paginées) ---
 async function loadTopRated(reset){
-  if(reset){ state.items = []; document.getElementById('results').innerHTML = ''; }
+  if(reset){ state.items = []; skeletonGrid(10); }
   try{
     const data = await tmdbFetch('/' + state.mediaType + '/top_rated', { page: state.page, region: REGION });
+    if(reset) document.getElementById('results').innerHTML = '';
     renderItems(data.results);
     document.getElementById('loadMoreBtn').style.display = data.page < data.total_pages ? 'block' : 'none';
   }catch(e){
@@ -771,10 +826,11 @@ async function loadTopRated(reset){
 }
 
 async function loadNew(reset){
-  if(reset){ state.items = []; document.getElementById('results').innerHTML = ''; }
+  if(reset){ state.items = []; skeletonGrid(10); }
   try{
     const path = state.mediaType === 'tv' ? '/tv/on_the_air' : '/movie/now_playing';
     const data = await tmdbFetch(path, { page: state.page, region: REGION });
+    if(reset) document.getElementById('results').innerHTML = '';
     renderItems(data.results);
     document.getElementById('loadMoreBtn').style.display = data.page < data.total_pages ? 'block' : 'none';
   }catch(e){
@@ -784,10 +840,11 @@ async function loadNew(reset){
 }
 
 async function loadTrendingMain(reset){
-  if(reset){ state.items = []; document.getElementById('results').innerHTML = ''; }
+  if(reset){ state.items = []; skeletonGrid(10); }
   try{
     const data = await tmdbFetch('/trending/all/week', { page: state.page });
     const items = data.results.filter(r => r.media_type === 'movie' || r.media_type === 'tv');
+    if(reset) document.getElementById('results').innerHTML = '';
     renderItems(items);
     document.getElementById('loadMoreBtn').style.display = data.page < data.total_pages ? 'block' : 'none';
   }catch(e){
@@ -799,7 +856,7 @@ async function loadTrendingMain(reset){
 // --- Catalog ---
 async function loadCatalog(reset){
   if(!state.providerId) return;
-  if(reset){ state.items = []; document.getElementById('results').innerHTML = ''; }
+  if(reset){ state.items = []; skeletonGrid(10); }
   try{
     const data = await tmdbFetch('/discover/' + state.mediaType, {
       with_watch_providers: state.providerId,
@@ -808,6 +865,7 @@ async function loadCatalog(reset){
       sort_by: 'popularity.desc',
       page: state.page
     });
+    if(reset) document.getElementById('results').innerHTML = '';
     renderItems(data.results);
     document.getElementById('loadMoreBtn').style.display = data.page < data.total_pages ? 'block' : 'none';
   }catch(e){
@@ -848,10 +906,11 @@ document.getElementById('searchInput').addEventListener('input', (e) => {
 
 async function runSearch(reset){
   if(reset === undefined) reset = true;
-  if(reset){ state.items = []; document.getElementById('results').innerHTML = ''; }
+  if(reset){ state.items = []; skeletonGrid(10); }
   try{
     const data = await tmdbFetch('/search/multi', { query: state.query, page: state.page });
     const filtered = data.results.filter(r => r.media_type === 'movie' || r.media_type === 'tv');
+    if(reset) document.getElementById('results').innerHTML = '';
     renderItems(filtered);
     document.getElementById('loadMoreBtn').style.display = data.page < data.total_pages ? 'block' : 'none';
   }catch(e){
