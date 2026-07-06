@@ -58,6 +58,7 @@
     background:linear-gradient(90deg, var(--surface) 25%, var(--surface-raised) 50%, var(--surface) 75%);
     background-size:200% 100%; animation:shimmer 1.6s infinite;
   }
+  header{
     position:sticky; top:0; z-index:50;
     background:rgba(10,10,9,0.88); backdrop-filter:blur(10px);
     border-bottom:1px solid var(--border);
@@ -710,7 +711,7 @@ async function loadTrending(){
     const data = await tmdbFetch('/trending/all/week', {});
     const items = data.results.filter(r => r.media_type === 'movie' || r.media_type === 'tv').slice(0, 15);
     renderRail('trendingRail', items, true);
-  }catch(e){ console.error(e); }
+  }catch(e){ console.error(e); document.getElementById('trendingRail').innerHTML = ''; }
 }
 
 async function loadTopRatedTeaser(){
@@ -718,7 +719,7 @@ async function loadTopRatedTeaser(){
   try{
     const data = await tmdbFetch('/movie/top_rated', { region: REGION });
     renderRail('topRatedRail', data.results.slice(0, 15).map(i => ({ ...i, media_type: 'movie' })), false);
-  }catch(e){ console.error(e); }
+  }catch(e){ console.error(e); document.getElementById('topRatedRail').innerHTML = ''; }
 }
 
 async function loadNewTeaser(){
@@ -726,7 +727,7 @@ async function loadNewTeaser(){
   try{
     const data = await tmdbFetch('/movie/now_playing', { region: REGION });
     renderRail('newRail', data.results.slice(0, 15).map(i => ({ ...i, media_type: 'movie' })), false);
-  }catch(e){ console.error(e); }
+  }catch(e){ console.error(e); document.getElementById('newRail').innerHTML = ''; }
 }
 
 function renderRail(railId, items, showRank){
@@ -779,6 +780,7 @@ async function loadProviders(){
     }
   }catch(e){
     console.error(e);
+    rail.innerHTML = '';
     showEmpty(true);
   }
 }
