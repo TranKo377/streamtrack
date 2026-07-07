@@ -377,7 +377,7 @@
 
 <header>
   <div class="header-inner">
-    <button class="logo" id="logoHomeBtn">
+    <button class="logo" id="logoHomeBtn" aria-label="Retour à l'accueil">
       <svg class="logo-mark" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
         <rect x="0" y="0" width="30" height="30" rx="9" fill="#b6ff3d"/>
         <path d="M11 8.5 L21 15 L11 21.5 Z" fill="#0a0a09"/>
@@ -395,8 +395,8 @@
     </nav>
     <button class="hamburger" id="hamburgerBtn" aria-label="Ouvrir le menu">&#9776;</button>
     <div class="search-wrap">
-      <span class="icon">&#128269;</span>
-      <input type="text" id="searchInput" placeholder="Rechercher...">
+      <span class="icon" aria-hidden="true">&#128269;</span>
+      <input type="text" id="searchInput" placeholder="Rechercher..." aria-label="Rechercher un film ou une série">
     </div>
     <button class="settings-btn" id="settingsBtn">Note IMDb</button>
   </div>
@@ -428,23 +428,23 @@
 
   <div class="kicker">[ Tendances cette semaine ]</div>
   <div class="carousel">
-    <button class="carousel-arrow prev" data-target="trendingRail">&#10094;</button>
+    <button class="carousel-arrow prev" data-target="trendingRail" aria-label="Titres précédents">&#10094;</button>
     <div id="trendingRail" class="carousel-track"></div>
-    <button class="carousel-arrow next" data-target="trendingRail">&#10095;</button>
+    <button class="carousel-arrow next" data-target="trendingRail" aria-label="Titres suivants">&#10095;</button>
   </div>
 
   <div class="kicker">[ Mieux notés ]</div>
   <div class="carousel">
-    <button class="carousel-arrow prev" data-target="topRatedRail">&#10094;</button>
+    <button class="carousel-arrow prev" data-target="topRatedRail" aria-label="Titres précédents">&#10094;</button>
     <div id="topRatedRail" class="carousel-track"></div>
-    <button class="carousel-arrow next" data-target="topRatedRail">&#10095;</button>
+    <button class="carousel-arrow next" data-target="topRatedRail" aria-label="Titres suivants">&#10095;</button>
   </div>
 
   <div class="kicker">[ Nouveautés ]</div>
   <div class="carousel">
-    <button class="carousel-arrow prev" data-target="newRail">&#10094;</button>
+    <button class="carousel-arrow prev" data-target="newRail" aria-label="Titres précédents">&#10094;</button>
     <div id="newRail" class="carousel-track"></div>
-    <button class="carousel-arrow next" data-target="newRail">&#10095;</button>
+    <button class="carousel-arrow next" data-target="newRail" aria-label="Titres suivants">&#10095;</button>
   </div>
 
   <div class="kicker">[ Plateformes ]</div>
@@ -473,7 +473,7 @@
 </main>
 
 <footer>
-  <button class="foot-logo" id="logoHomeFooterBtn">
+  <button class="foot-logo" id="logoHomeFooterBtn" aria-label="Retour à l'accueil">
     <svg class="logo-mark" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
       <rect x="0" y="0" width="30" height="30" rx="9" fill="#b6ff3d"/>
       <path d="M11 8.5 L21 15 L11 21.5 Z" fill="#0a0a09"/>
@@ -1101,7 +1101,7 @@ async function openDetail(id, type){
 
     modal.innerHTML = `
       <div class="modal-header" style="background-image:url('${backdrop}')">
-        <button class="modal-close" id="closeModal">&times;</button>
+        <button class="modal-close" id="closeModal" aria-label="Fermer la fiche">&times;</button>
       </div>
       <div class="modal-body">
         <div class="modal-title">${title}</div>
